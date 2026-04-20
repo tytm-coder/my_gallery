@@ -1,182 +1,807 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>图库管理</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:#0f0f0f;color:#e0e0e0}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>图库管理后台</title>
+  <meta name="description" content="本地管理图库内容，上传图片视频并导出 data.json" />
+  <style>
+    :root {
+      --bg: #0f1115;
+      --panel: #171a21;
+      --panel-2: #1e2330;
+      --text: #eef2ff;
+      --muted: #aab3c5;
+      --line: #2d3445;
+      --brand: #6ea8fe;
+      --brand-2: #8b5cf6;
+      --danger: #ef4444;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.28);
+      --radius: 16px;
+    }
 
-.navbar{background:#16162a;padding:16px 28px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #252540}
-.navbar h1{font-size:20px;font-weight:700;background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.navbar a{color:#888;text-decoration:none;font-size:14px}.navbar a:hover{color:#667eea}
-.wrap{max-width:1100px;margin:0 auto;padding:24px 20px}
+    * {
+      box-sizing: border-box;
+    }
 
-.info{background:#181830;border:1px solid #282850;border-radius:12px;padding:18px 22px;margin-bottom:24px;line-height:2;color:#aaa;font-size:13.5px}
-.info b{color:#7c8cf8}
+    html, body {
+      margin: 0;
+      padding: 0;
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      background: linear-gradient(180deg, #0b0e13 0%, #111522 100%);
+      color: var(--text);
+    }
 
-/* ===== 上传区域 ===== */
-.up-box{
-border:2px dashed #3a3a5c;border-radius:16px;
-padding:56px 20px;text-align:center;margin-bottom:24px;
-transition:all .25s;background:#111120;
-position:relative;overflow:hidden;cursor:pointer;
-}
-.up-box:hover,.up-box.drag-over{border-color:#667eea;background:rgba(102,126,234,.08)}
-.up-icon{font-size:52px;margin-bottom:14px}.up-title{font-size:17px;color:#ddd;font-weight:600}
-.up-sub{font-size:13px;color:#555;margin-top:8px}
-/* label包裹所有可见内容，点击时触发隐藏input */
-.up-label{display:block;cursor:pointer;z-index:2;position:relative}
-/* 隐藏input：不用opacity覆盖，而是彻底移除 */
-#fIn{position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
+    .wrap {
+      width: min(1200px, calc(100% - 24px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
 
-.bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;
-padding:14px 18px;background:#181830;border-radius:10px;flex-wrap:wrap;gap:10px}
-.bar .cnt{color:#888;font-size:14px}.btns{display:flex;gap:8px;flex-wrap:wrap}
-.btn{border:none;border-radius:9px;cursor:pointer;font-size:13.5px;font-weight:600;padding:10px 20px;transition:.2s}
-.btn-exp{background:#00b894;color:#fff}.btn-exp:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(0,184,148,.35)}
-.btn-imp{background:#e17055;color:#fff}.btn-imp:hover{transform:translateY(-1px)}
-.btn-del{background:#ff6b6b;color:#fff;font-size:12px;padding:8px 16px}.btn-del:hover{transform:translateY(-1px)}
-#impIn{display:none}
+    .hero {
+      background: linear-gradient(135deg, rgba(110, 168, 254, 0.16), rgba(139, 92, 246, 0.14));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: var(--shadow);
+      border-radius: 24px;
+      padding: 28px 22px;
+      margin-bottom: 18px;
+      backdrop-filter: blur(10px);
+    }
 
-.grid{columns:4;column-gap:12px}@media(max-width:1100px){.grid{columns:3}}@media(max-width:800px){.grid{columns:2}}@media(max-width:500px){.grid{columns:1}}
-.card{break-inside:avoid;margin-bottom:12px;border-radius:12px;overflow:hidden;background:#1a1a30;transition:.3s;position:relative}
-.card:hover{transform:translateY(-4px);box-shadow:0 14px 32px rgba(0,0,0,.45)}
-.card img,.card video{width:100%;display:block}
-.ovl{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,transparent 55%);opacity:0;transition:.3s;display:flex;align-items:flex-end;justify-content:space-between;padding:12px}
-.card:hover .ovl{opacity:1}
-.x-btn{width:30px;height:30px;border-radius:50%;background:rgba(255,71,87,.92);color:#fff;border:none;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
-.tag{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:700}
-.tag-img{background:rgba(102,126,234,.88)}.tag-vid{background:rgba(118,75,162,.88)}
+    .title {
+      font-size: 30px;
+      font-weight: 800;
+      margin: 0 0 8px;
+      letter-spacing: 0.5px;
+    }
 
-.emp{text-align:center;padding:70px 20px;color:#444}.emp-i{font-size:60px;margin-bottom:14px;opacity:.4}
+    .desc {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+    }
 
-.tips{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);padding:12px 28px;border-radius:10px;color:#fff;font-size:14px;z-index:9999;opacity:0;transition:.3s;font-weight:500}
-.tips.on{opacity:1}.tips-ok{background:#00b894}.tips-err{background:#ff6b6b}
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      margin: 18px 0;
+    }
 
-.lbx{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:1000;display:none;align-items:center;justify-content:center;padding:36px}
-.lbx.show{display:flex}
-.lb-mc{max-width:90vw;max-height:84vh;object-fit:contain;border-radius:8px}
-.lb-x{position:absolute;top:18px;right:24px;background:0 0;border:none;color:#fff;font-size:38px;cursor:pointer;opacity:.55;transition:.2s}
-.lb-x:hover{opacity:1}
-</style>
+    .actions, .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: 0.2s ease;
+      font-size: 14px;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      border-color: #51607d;
+    }
+
+    .btn.primary {
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      border-color: transparent;
+      color: #fff;
+    }
+
+    .btn.danger {
+      background: rgba(239, 68, 68, 0.12);
+      color: #ffd4d4;
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .btn.ok {
+      background: rgba(34, 197, 94, 0.14);
+      color: #d7ffe4;
+      border-color: rgba(34, 197, 94, 0.35);
+    }
+
+    .stat {
+      min-width: 110px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+
+    .stat .k {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .stat .v {
+      font-size: 22px;
+      font-weight: 800;
+    }
+
+    .msg {
+      margin: 10px 0 16px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .msg.ok {
+      color: #d7ffe4;
+      background: rgba(34, 197, 94, 0.1);
+      border-color: rgba(34, 197, 94, 0.35);
+    }
+
+    .msg.error {
+      color: #ffd4d4;
+      background: rgba(239, 68, 68, 0.1);
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .dropzone {
+      border: 2px dashed #4a5673;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 34px 20px;
+      text-align: center;
+      transition: 0.2s ease;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .dropzone.dragover {
+      border-color: var(--brand);
+      background: rgba(110, 168, 254, 0.08);
+      transform: scale(1.01);
+    }
+
+    .dropzone h3 {
+      margin: 0 0 10px;
+      font-size: 22px;
+    }
+
+    .dropzone p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .pick-row {
+      margin-top: 16px;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .hint {
+      margin-top: 12px;
+      color: #c9d3e6;
+      font-size: 13px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: 0.18s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      border-color: #43506e;
+      box-shadow: 0 16px 34px rgba(0, 0, 0, 0.34);
+    }
+
+    .thumb {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: #0d1017;
+      position: relative;
+      overflow: hidden;
+      cursor: pointer;
+    }
+
+    .thumb img,
+    .thumb video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      background: #000;
+    }
+
+    .tag {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      background: rgba(0, 0, 0, 0.58);
+      backdrop-filter: blur(6px);
+    }
+
+    .body {
+      padding: 12px 14px 14px;
+    }
+
+    .name {
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.5;
+      word-break: break-all;
+      margin-bottom: 8px;
+    }
+
+    .sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .row .btn {
+      flex: 1;
+      padding: 9px 10px;
+      font-size: 13px;
+    }
+
+    .empty {
+      padding: 34px 18px;
+      border-radius: 18px;
+      border: 1px dashed #3c475f;
+      text-align: center;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .mask {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.76);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      padding: 18px;
+    }
+
+    .mask.show {
+      display: flex;
+    }
+
+    .viewer {
+      width: min(1000px, 100%);
+      max-height: calc(100vh - 36px);
+      background: #11151e;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 18px 60px rgba(0, 0, 0, 0.55);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .viewer-hd {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .viewer-title {
+      font-weight: 700;
+      font-size: 14px;
+      word-break: break-all;
+    }
+
+    .viewer-bd {
+      background: #0a0d13;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 320px;
+      max-height: calc(100vh - 150px);
+      overflow: auto;
+    }
+
+    .viewer-bd img,
+    .viewer-bd video {
+      max-width: 100%;
+      max-height: calc(100vh - 170px);
+      display: block;
+      background: #000;
+    }
+
+    .viewer-ft {
+      padding: 14px 16px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      .title {
+        font-size: 24px;
+      }
+
+      .toolbar {
+        align-items: stretch;
+      }
+
+      .actions, .stats {
+        width: 100%;
+      }
+
+      .stat {
+        flex: 1 1 calc(50% - 10px);
+      }
+    }
+  </style>
 </head>
 <body>
+  <div class="wrap">
+    <section class="hero">
+      <h1 class="title">图库管理后台</h1>
+      <p class="desc">
+        这里是本地管理页，不需要 Token。上传后的内容保存在当前浏览器 localStorage 里。<br />
+        你上传完成后，点“导出 data.json”，再把导出的文件上传到 GitHub 仓库根目录，公开页就能同步显示。
+      </p>
+    </section>
 
-<nav class="navbar"><h1>🖼️ 图库管理后台</h1><a href="index.html">→ 公开浏览页</a></nav>
+    <div class="toolbar">
+      <div class="actions">
+        <label for="fileInput" class="btn primary">选择图片/视频</label>
+        <button class="btn ok" id="exportBtn">导出 data.json</button>
+        <label for="importInput" class="btn">导入 JSON（覆盖本地）</label>
+        <button class="btn danger" id="clearBtn">清空全部</button>
+      </div>
 
-<div class="wrap">
+      <div class="stats">
+        <div class="stat">
+          <div class="k">总数</div>
+          <div class="v" id="statAll">0</div>
+        </div>
+        <div class="stat">
+          <div class="k">图片</div>
+          <div class="v" id="statImg">0</div>
+        </div>
+        <div class="stat">
+          <div class="k">视频</div>
+          <div class="v" id="statVideo">0</div>
+        </div>
+      </div>
+    </div>
 
-<div class="info">
-<b>工作流程：</b>拖拽上传 → 导出JSON → 上传GitHub → 公开页自动更新 ✅ 无需Token
-</div>
+    <div id="msg" class="msg">准备就绪。你可以点击上传，也可以直接把文件拖进下面的虚线框。</div>
 
-<!-- ========== 上传区域 ========== -->
-<!-- 外层div处理拖拽，内层label处理点击 -->
-<div class="up-box" id="dz">
-<label class="up-label" for="fIn">
-<span class="up-icon">📤</span><br>
-<span class="up-title">拖拽图片 / 视频到这里</span><br>
-<span class="up-sub">或点击此区域选择文件 · JPG/PNG/GIF/WebP/MP4</span>
-</label>
-<input type="file" id="fIn" multiple accept="image/*,video/*">
-</div>
+    <div id="dropzone" class="dropzone">
+      <h3>拖拽文件到这里</h3>
+      <p>支持图片和视频。点击下面按钮也可以手动选择文件。</p>
+      <div class="pick-row">
+        <label for="fileInput" class="btn primary">点击选择文件</label>
+      </div>
+      <div class="hint">这个版本不再使用 JS 强制触发 click()，所以不会再被拦截器恶心一手。</div>
+    </div>
 
-<div class="bar"><span class="cnt" id="cnt">共 0 个文件</span><div class="btns">
-<button class="btn btn-exp" onclick="doExp()">📥 导出到 JSON</button>
-<button class="btn btn-imp" onclick="$('impIn').click()">📂 导入数据</button>
-<input type="file" id="impIn" accept=".json">
-<button class="btn btn-del" onclick="doClr()">🗑️ 清空</button></div></div>
+    <div id="empty" class="empty hidden">
+      现在还没有内容。先上传几张图片试试。
+    </div>
 
-<div class="grid" id="grid"></div>
-<div class="emp hidden" id="emp"><div class="emp-i">📭</div><p style="font-size:15px;color:#555">还没有内容<br><small style="font-size:12px;color:#333">拖拽或点击上方区域开始</small></p></div>
-</div>
+    <div id="grid" class="grid"></div>
+  </div>
 
-<div class="lbx" id="lbx" onclick="doClb(event)"><button class="lb-x">&times;</button>
-<img class="lb-mc" id="lbImg" style="display:none"><video class="lb-mc" id="lbVd" controls style="display:none"></video></div>
-<div class="tips" id="tip"></div>
+  <input id="fileInput" type="file" accept="image/*,video/*" multiple />
+  <input id="importInput" type="file" accept=".json,application/json" />
 
-<script>
-function $(i){return document.getElementById(i)};
-var K='gal_v6',D=JSON.parse(localStorage.getItem(K)||'{"d":[]}').d||[];
-function sv(){localStorage.setItem(K,JSON.stringify({d:D}));dr()}
-function tip(m,t){var e=$('tip');e.textContent=m;e.className='tips on tips-'+(t||'ok');setTimeout(function(){e.className='tips'},2300)}
+  <div id="mask" class="mask" onclick="closeViewer(event)">
+    <div class="viewer" onclick="event.stopPropagation()">
+      <div class="viewer-hd">
+        <div id="viewerTitle" class="viewer-title">预览</div>
+        <button class="btn" onclick="closeViewer()">关闭</button>
+      </div>
+      <div id="viewerBody" class="viewer-bd"></div>
+      <div id="viewerInfo" class="viewer-ft">-</div>
+    </div>
+  </div>
 
-function dr(){
-var g=$('grid'),c=$('cnt'),e=$('emp');
-c.textContent='共 '+D.length+' 个文件';
-if(!D.length){g.innerHTML='';e.className='emp';return}
-e.className+=' hidden';
-g.innerHTML=D.map(function(m,i){
-return '<div class="card">'+(m.t==='img'?'<img src="'+m.v+'" loading=lazy>':'<video src="'+m.v+'" muted loop playsinline onmouseover=this.play() onmouseout=this.pause()></video>')+
-'<div class="ovl"><span class="tag '+(m.t==='img'?'tag-img':'tag-vid')+'">'+(m.t==='img'?'📷 图片':'🎬 视频')+'</span>'+
-'<button class="x-btn" onclick="rm('+i+',event)">✕</button></div></div>'
-}).join('')
-}
+  <script>
+    const STORAGE_KEY = "gallery_data_v6";
 
-// ========== 拖拽绑定到外层容器 ==========
-var dz=document.getElementById('dz');
-dz.addEventListener('dragenter',function(e){e.preventDefault();dz.classList.add('drag-over')});
-dz.addEventListener('dragover',function(e){e.preventDefault();dz.classList.add('drag-over')});
-dz.addEventListener('dragleave',function(e){
-e.preventDefault();
-if(dz.contains(e.relatedTarget))return;
-dz.classList.remove('drag-over')
-});
-dz.addEventListener('drop',function(e){
-e.preventDefault();dz.classList.remove('drag-over');
-handleFiles(e.dataTransfer.files)
-});
+    let images = [];
 
-// ========== 点击通过 label-for 绑定（纯HTML原生）==========
-$('fIn').addEventListener('change',function(){
-handleFiles(this.files);
-this.value=''
-});
+    const msgEl = document.getElementById("msg");
+    const gridEl = document.getElementById("grid");
+    const emptyEl = document.getElementById("empty");
+    const statAllEl = document.getElementById("statAll");
+    const statImgEl = document.getElementById("statImg");
+    const statVideoEl = document.getElementById("statVideo");
+    const fileInput = document.getElementById("fileInput");
+    const importInput = document.getElementById("importInput");
+    const dropzone = document.getElementById("dropzone");
 
-async function handleFiles(fs){
-if(!fs||!fs.length)return;
-var n=0;
-for(var i=0;i<fs.length&&i<10;i++){
-var f=fs[i];
-if(!/^image|video/.test(f.type))continue;
-var r=new FileReader(),v=await new Promise(function(ok){r.onload=function(){ok(r.result)};r.readAsDataURL(f)});
-D.push({t:/^image/.test(f.type)?'img':'vid',n:f.name,v:v});n++
-}sv();if(n)tip('✅ 已上传 '+n+' 个','ok')
-}
+    function setMsg(text, type) {
+      msgEl.textContent = text || "";
+      msgEl.className = "msg" + (type ? " " + type : "");
+    }
 
-window.rm=function(i,ev){ev.stopPropagation();D.splice(i,1);sv();tip('已删除')};
+    function escapeHtml(str) {
+      return String(str || "").replace(/[&<>"']/g, function(s) {
+        return {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          "\"": "&quot;",
+          "'": "&#39;"
+        }[s];
+      });
+    }
 
-window.doExp=function(){
-if(!D.length)return tip('没有数据','err');
-var a=document.createElement('a'),data={images:D.map(function(x){return{x:x.t==='img'?'image':'video',name:x.n,data:x.v}})};
-a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));
-a.download='data.json';a.click();URL.revokeObjectURL(a.href);tip('📥 已导出')
-};
+    function normalizeType(type, data) {
+      const t = String(type || "").trim().toLowerCase();
+      if (t === "video" || t === "vid" || t === "mp4") return "video";
+      if (t === "image" || t === "img" || t === "photo" || t === "pic") return "image";
 
-$('impIn').onchange=function(ev){
-var f=ev.target.files[0];if(!f)return;
-new FileReader().onload=function(){
-try{
-var o=JSON.parse(this.result),arr=o.images||o.d||[];
-if(arr.length){D.length=0;arr.forEach(function(x){D.push({t:(x.x||x.type)==='image'||(x.x||x.type)==='img'?'img':'vid',n:x.name||'',v:x.data||x.d||x.v})});sv();tip('导入成功')}
-else tip('格式错误','err')}catch(_){tip('解析失败','err')}
-};f.readAsText(f);ev.target.value=''
-};
+      const v = String(data || "").toLowerCase();
+      if (v.startsWith("data:video/")) return "video";
+      return "image";
+    }
 
-window.doClr=function(){if(!D.length)return tip('已是空的','err');if(!confirm('清空全部？'))return;D.length=0;sv();tip('已清空')};
+    function normalizeItem(x, idx) {
+      const value = x && (x.data || x.d || x.v || x.url || "");
+      const name = x && (x.name || x.n || x.title || ("未命名_" + (idx + 1)));
+      const type = normalizeType(x && (x.type || x.t || x.x || ""), value);
 
-$('grid').onclick=function(ev){
-var c=ev.target.closest('.card');if(!c||ev.target.closest('.x-btn'))return;
-var m=c.querySelector('img')||c.querySelector('video');if(!m)return;
-var im=$('lbImg'),vd=$('lbVd');
-if(m.tagName==='IMG'){im.src=m.src;im.style.display='';vd.style.display='none';vd.pause()}
-else{vd.src=m.src;vd.style.display='';im.style.display='none';vd.play()}$('lbx').className='lbx show'
-};
-window.doClb=function(ev){if(ev&&ev.target!==ev.currentTarget&&!ev.target.closest('.lb-x'))return;$('lbx').className='lbx';$('lbVd').pause()};
-dr();
-</script>
+      return {
+        type: type,
+        name: String(name || "").trim() || ("未命名_" + (idx + 1)),
+        data: String(value || "")
+      };
+    }
+
+    function saveData() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ images: images }));
+        return true;
+      } catch (err) {
+        setMsg("保存失败：浏览器本地存储空间可能不够。尤其是视频太大时很容易爆。建议减少大文件后再试。", "error");
+        return false;
+      }
+    }
+
+    function loadData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          images = [];
+          render();
+          return;
+        }
+
+        const json = JSON.parse(raw);
+        const arr = Array.isArray(json) ? json : (Array.isArray(json.images) ? json.images : []);
+        images = arr.map(normalizeItem).filter(function(item) {
+          return !!item.data;
+        });
+      } catch (err) {
+        images = [];
+        setMsg("读取本地数据失败，已重置为空。", "error");
+      }
+
+      render();
+    }
+
+    function updateStats() {
+      const imgCount = images.filter(function(x) { return x.type === "image"; }).length;
+      const videoCount = images.filter(function(x) { return x.type === "video"; }).length;
+
+      statAllEl.textContent = images.length;
+      statImgEl.textContent = imgCount;
+      statVideoEl.textContent = videoCount;
+    }
+
+    function render() {
+      updateStats();
+
+      if (!images.length) {
+        gridEl.innerHTML = "";
+        emptyEl.classList.remove("hidden");
+        return;
+      }
+
+      emptyEl.classList.add("hidden");
+
+      gridEl.innerHTML = images.map(function(item, idx) {
+        const media = item.type === "video"
+          ? "<video src=\"" + item.data + "\" muted playsinline preload=\"metadata\"></video>"
+          : "<img src=\"" + item.data + "\" alt=\"" + escapeHtml(item.name) + "\" loading=\"lazy\" />";
+
+        const tag = item.type === "video" ? "视频" : "图片";
+
+        return ""
+          + "<div class=\"card\">"
+          + "  <div class=\"thumb\" onclick=\"previewItem(" + idx + ")\">"
+          +        media
+          + "    <div class=\"tag\">" + tag + "</div>"
+          + "  </div>"
+          + "  <div class=\"body\">"
+          + "    <div class=\"name\">" + escapeHtml(item.name) + "</div>"
+          + "    <div class=\"sub\">点击缩略图可预览</div>"
+          + "    <div class=\"row\">"
+          + "      <button class=\"btn danger\" onclick=\"removeItem(" + idx + ")\">删除</button>"
+          + "    </div>"
+          + "  </div>"
+          + "</div>";
+      }).join("");
+    }
+
+    function readFileAsDataURL(file) {
+      return new Promise(function(resolve, reject) {
+        const reader = new FileReader();
+        reader.onload = function() {
+          resolve(reader.result);
+        };
+        reader.onerror = function() {
+          reject(new Error("读取文件失败：" + file.name));
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    async function handleFiles(fileList) {
+      const files = Array.from(fileList || []);
+      const validFiles = files.filter(function(file) {
+        return file && (file.type.startsWith("image/") || file.type.startsWith("video/"));
+      });
+
+      if (!validFiles.length) {
+        setMsg("没有检测到可上传的图片或视频文件。", "error");
+        return;
+      }
+
+      setMsg("正在处理 " + validFiles.length + " 个文件，请稍等...", "");
+
+      let added = 0;
+
+      for (const file of validFiles) {
+        try {
+          const dataUrl = await readFileAsDataURL(file);
+          images.unshift({
+            type: file.type.startsWith("video/") ? "video" : "image",
+            name: file.name,
+            data: dataUrl
+          });
+          added++;
+        } catch (err) {
+          console.error(err);
+        }
+      }
+
+      if (!saveData()) {
+        loadData();
+        return;
+      }
+
+      render();
+      setMsg("上传完成，成功加入 " + added + " 个文件。记得导出 data.json 后再上传到 GitHub。", "ok");
+    }
+
+    function exportData() {
+      const payload = {
+        images: images.map(function(item) {
+          return {
+            type: item.type,
+            name: item.name,
+            data: item.data
+          };
+        })
+      };
+
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {
+        type: "application/json;charset=utf-8"
+      });
+
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "data.json";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(function() {
+        URL.revokeObjectURL(a.href);
+      }, 1000);
+
+      setMsg("已导出 data.json。下一步把它上传到 GitHub 仓库根目录。", "ok");
+    }
+
+    async function importData(file) {
+      if (!file) return;
+
+      try {
+        const text = await file.text();
+        const json = JSON.parse(text);
+        const arr = Array.isArray(json) ? json : (Array.isArray(json.images) ? json.images : []);
+        const next = arr.map(normalizeItem).filter(function(item) {
+          return !!item.data;
+        });
+
+        if (!next.length) {
+          setMsg("导入失败：JSON 里没有可用内容。", "error");
+          return;
+        }
+
+        images = next;
+
+        if (!saveData()) {
+          return;
+        }
+
+        render();
+        setMsg("JSON 导入成功，已覆盖本地数据，共 " + images.length + " 条。", "ok");
+      } catch (err) {
+        setMsg("导入失败：" + err.message, "error");
+      }
+    }
+
+    window.removeItem = function(idx) {
+      const item = images[idx];
+      if (!item) return;
+
+      if (!confirm("确定删除：\n" + item.name + " ?")) return;
+
+      images.splice(idx, 1);
+      if (!saveData()) return;
+      render();
+      setMsg("已删除：" + item.name, "ok");
+    };
+
+    document.getElementById("exportBtn").addEventListener("click", exportData);
+
+    document.getElementById("clearBtn").addEventListener("click", function() {
+      if (!images.length) {
+        setMsg("现在本来就是空的。", "");
+        return;
+      }
+
+      if (!confirm("确定清空全部内容吗？这会清掉当前浏览器里的本地图库数据。")) return;
+
+      images = [];
+      if (!saveData()) return;
+      render();
+      setMsg("已清空全部内容。", "ok");
+    });
+
+    fileInput.addEventListener("change", function(e) {
+      handleFiles(e.target.files);
+      e.target.value = "";
+    });
+
+    importInput.addEventListener("change", function(e) {
+      if (!e.target.files || !e.target.files[0]) return;
+
+      if (!confirm("导入 JSON 会覆盖当前本地数据，确定继续吗？")) {
+        e.target.value = "";
+        return;
+      }
+
+      importData(e.target.files[0]);
+      e.target.value = "";
+    });
+
+    ["dragenter", "dragover"].forEach(function(evtName) {
+      dropzone.addEventListener(evtName, function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add("dragover");
+      });
+    });
+
+    ["dragleave", "dragend"].forEach(function(evtName) {
+      dropzone.addEventListener(evtName, function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove("dragover");
+      });
+    });
+
+    dropzone.addEventListener("drop", function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove("dragover");
+
+      const files = e.dataTransfer && e.dataTransfer.files;
+      if (!files || !files.length) {
+        setMsg("没有读取到拖拽文件。", "error");
+        return;
+      }
+
+      handleFiles(files);
+    });
+
+    const maskEl = document.getElementById("mask");
+    const viewerTitleEl = document.getElementById("viewerTitle");
+    const viewerBodyEl = document.getElementById("viewerBody");
+    const viewerInfoEl = document.getElementById("viewerInfo");
+
+    window.previewItem = function(idx) {
+      const item = images[idx];
+      if (!item) return;
+
+      viewerTitleEl.textContent = item.name;
+      viewerInfoEl.textContent = "类型：" + (item.type === "video" ? "视频" : "图片");
+
+      if (item.type === "video") {
+        viewerBodyEl.innerHTML = "<video src=\"" + item.data + "\" controls autoplay playsinline></video>";
+      } else {
+        viewerBodyEl.innerHTML = "<img src=\"" + item.data + "\" alt=\"" + escapeHtml(item.name) + "\" />";
+      }
+
+      maskEl.classList.add("show");
+    };
+
+    window.closeViewer = function() {
+      maskEl.classList.remove("show");
+      viewerBodyEl.innerHTML = "";
+    };
+
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape") closeViewer();
+    });
+
+    loadData();
+  </script>
 </body>
 </html>
-update to no-token version
