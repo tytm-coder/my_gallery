@@ -3,10 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>我的图库 | Gallery</title>
+<title>我的个人图片视频图库 - My Gallery</title>
+<!-- ===== SEO 优化 ===== -->
+<meta name="description" content="我的个人图片与视频图库，展示精选照片和视频作品集。持续更新中。">
+<meta name="keywords" content="图片库,视频集,相册,画廊,gallery,photos,videos,个人作品集">
+<meta name="author" content="tytm-coder">
+<meta name="robots" content="index, follow">
+<!-- Open Graph 社交分享 -->
+<meta property="og:title" content="我的图库 | My Gallery">
+<meta property="og:description" content="我的个人图片与视频图库">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://tytm-coder.github.io/my_gallery/">
+<!-- 让搜索引擎更快发现 -->
+<link rel="canonical" href="https://tytm-coder.github.io/my_gallery/index.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#0a0a0f;color:#e0e0e0;min-height:100vh}
+body{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:#0a0a0f;color:#e0e0e0;min-height:100vh}
 .header{text-align:center;padding:60px 20px 30px}
 .header h1{font-size:clamp(28px,5vw,42px);font-weight:700;background:linear-gradient(135deg,#667eea,#764ba2,#f093fb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
 .header p{color:#666;font-size:15px}
@@ -40,7 +52,7 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#0a0a0f;c
 <body>
 
 <div class="header">
-<h1>✨ My Gallery</h1><p>图片与视频集锦</p>
+<h1>✨ My Gallery</h1><p>我的图片与视频集锦</p>
 <div class="stats"><div class="stat"><div class="stat-num" id="tN">-</div><div class="stat-label">全部</div></div>
 <div class="stat"><div class="stat-num" id="iN">-</div><div class="stat-label">图片</div></div>
 <div class="stat"><div class="stat-num" id="vN">-</div><div class="stat-label">视频</div></div></div>
@@ -54,20 +66,19 @@ body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#0a0a0f;c
 <div class="empty hidden" id="empty"><div class="ei">🎨</div><h2>图库空空的</h2><p>管理员还没上传内容~</p></div>
 </div>
 
-<footer class="footer">Powered by GitHub Pages</footer>
+<footer class="footer">Powered by GitHub Pages · tytm-coder's Gallery</footer>
 
 <div class="lb" id="lb" onclick="closeLb(event)">
 <button class="lb-close" onclick="closeLb()">&times;</button>
 <button class="lb-nav lb-prev" onclick="event.stopPropagation();nav(-1)">‹</button>
 <button class="lb-nav lb-next" onclick="event.stopPropagation();nav(1)">›</button>
-<img class="lb-m" id="lbIm" style="display:none"><video class="lb-m" id="lbVd" controls style="display:none"></video>
+<img class="lb-m" id="lbIm" style="display:none"><video class="lb-mc" id="lbVd" controls style="display:none"></video>
 <div class="lb-ctr" id="lbCtr"></div>
 </div>
 
 <script>
 var all=[],filt='all',ci=0;
 const OWNER='tytm-coder',REPO='my_gallery';
-
 (function init(){
 fetch('https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/main/data.json?t='+Date.now())
 .then(function(r){if(r.ok)return r.json()})
@@ -75,28 +86,24 @@ fetch('https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/main/data.json?t='+D
 .catch(function(){upd();render()});
 $('loading').style.display='none';
 })();
-
 function $(id){return document.getElementById(id)}
-function upd(){$('tN').textContent=all.length;$('iN').textContent=all.filter(function(x){return x.t==='image'}).length;$('vN').textContent=all.filter(function(x){return x.t==='video'}).length}
+function upd(){$('tN').textContent=all.length;$('iN').textContent=all.filter(function(x){return x.t==='img'}).length;$('vN').textContent=all.filter(function(x){return x.t==='vid'}).length}
 function get(){return filt==='all'?all:all.filter(function(x){return x.t===filt})}
 function render(){var g=$('gallery'),e=$('empty'),items=get();
 if(!items.length){g.innerHTML='';g.classList.add('hidden');e.classList.remove('hidden');return}
 e.classList.add('hidden');g.classList.remove('hidden');
 g.innerHTML=items.map(function(im,idx){
 return '<div class="item" onclick="openLb('+idx+')">'+
-(im.t==='image'?'<img src="'+im.d+'" loading=lazy>':'<video src="'+im.d+'" muted loop playsinline preload=metadata></video><div class="v-icon">▶</div>')+
+(im.t==='img'?'<img src="'+im.v+'" loading=lazy>':'<video src="'+im.v+'" muted loop playsinline preload=metadata></video><div class="v-icon">▶</div>')+
 '</div>'
-}).join('')
-}
-
+}).join('')}
 document.querySelectorAll('.tab-btn').forEach(function(b){
 b.onclick=function(){filt=this.dataset.f;document.querySelectorAll('.tab-btn').forEach(function(x){x.classList.toggle('active',x===this)}.bind(this));render()}.bind(b)
 });
-
 window.openLb=function(idx){var items=get();ci=idx;showM(items[idx]);$('lb').classList.add('show');ctr(items.length)};
 function showM(im){var imEl=$('lbIm'),vEl=$('lbVd');
-if(im.t==='image'){imEl.src=im.d;imEl.style.display='';vEl.style.display='none';vEl.pause()}
-else{vEl.src=im.d;vEl.style.display='';imEl.style.display='none';vEl.play()}}
+if(im.t==='img'){imEl.src=im.v;imEl.style.display='';vEl.style.display='none';vEl.pause()}
+else{vEl.src=im.v;vEl.style.display='';imEl.style.display='none';vEl.play()}}
 window.closeLb=function(e){if(e&&e.target!==e.currentTarget&&!e.target.closest('.lb-close'))return;$('lb').classList.remove('show');$('lbVd').pause()}
 window.nav=function(d){var items=get();ci=(ci+d+items.length)%items.length;showM(items[ci]);ctr(items.length)};
 function ctr(t){$('lbCtr').textContent=(ci+1)+' / '+t}
