@@ -3,18 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>我的个人图片视频图库 - My Gallery</title>
-<!-- ===== SEO 优化 ===== -->
-<meta name="description" content="我的个人图片与视频图库，展示精选照片和视频作品集。持续更新中。">
-<meta name="keywords" content="图片库,视频集,相册,画廊,gallery,photos,videos,个人作品集">
-<meta name="author" content="tytm-coder">
+<title>我的图库 - My Gallery</title>
+<meta name="description" content="我的个人图片与视频图库">
+<meta name="keywords" content="图片库,视频集,gallery">
 <meta name="robots" content="index, follow">
-<!-- Open Graph 社交分享 -->
 <meta property="og:title" content="我的图库 | My Gallery">
-<meta property="og:description" content="我的个人图片与视频图库">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://tytm-coder.github.io/my_gallery/">
-<!-- 让搜索引擎更快发现 -->
+<meta property="og:description" content="个人图片与视频集锦">
 <link rel="canonical" href="https://tytm-coder.github.io/my_gallery/index.html">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -22,7 +16,7 @@ body{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:#0a0a0f;c
 .header{text-align:center;padding:60px 20px 30px}
 .header h1{font-size:clamp(28px,5vw,42px);font-weight:700;background:linear-gradient(135deg,#667eea,#764ba2,#f093fb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
 .header p{color:#666;font-size:15px}
-.header .stats{display:flex;gap:20px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.stats{display:flex;gap:20px;justify-content:center;margin-top:20px;flex-wrap:wrap}
 .stat{background:rgba(255,255,255,.04);padding:14px 26px;border-radius:12px;border:1px solid rgba(255,255,255,.06)}
 .stat-num{font-size:26px;font-weight:700;color:#667eea}.stat-label{font-size:12px;color:#555;margin-top:4px}
 .tabs{display:flex;justify-content:center;gap:4px;margin:0 auto 32px;max-width:380px;background:rgba(255,255,255,.03);padding:5px;border-radius:12px}
@@ -58,7 +52,7 @@ body{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:#0a0a0f;c
 <div class="stat"><div class="stat-num" id="vN">-</div><div class="stat-label">视频</div></div></div>
 </div>
 
-<div class="tabs"><button class="tab-btn active" data-f="all">全部</button><button class="tab-btn" data-f="image">📷 图片</button><button class="tab-btn" data-f="video">🎬 视频</button></div>
+<div class="tabs"><button class="tab-btn active" data-f="all">全部</button><button class="tab-btn" data-f="img">📷 图片</button><button class="tab-btn" data-f="vid">🎬 视频</button></div>
 
 <div class="container">
 <div class="loading" id="loading"><div class="spinner"></div><p>加载中...</p></div>
@@ -72,44 +66,60 @@ body{font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:#0a0a0f;c
 <button class="lb-close" onclick="closeLb()">&times;</button>
 <button class="lb-nav lb-prev" onclick="event.stopPropagation();nav(-1)">‹</button>
 <button class="lb-nav lb-next" onclick="event.stopPropagation();nav(1)">›</button>
-<img class="lb-m" id="lbIm" style="display:none"><video class="lb-mc" id="lbVd" controls style="display:none"></video>
+<img class="lb-m" id="lbIm" style="display:none"><video class="lb-m" id="lbVd" controls style="display:none"></video>
 <div class="lb-ctr" id="lbCtr"></div>
 </div>
 
 <script>
 var all=[],filt='all',ci=0;
 const OWNER='tytm-coder',REPO='my_gallery';
+
 (function init(){
 fetch('https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/main/data.json?t='+Date.now())
 .then(function(r){if(r.ok)return r.json()})
-.then(function(d){all=d?d.images||[]:[];upd();render()})
+.then(function(d){
+if(!d||!d.images)return;
+// ★ 关键修复：统一字段名
+all=d.images.map(function(x){
+return{
+t:(x.x||x.t||x.type)==='image'||(x.x||x.t||x.type)==='img'?'img':'vid',
+n:x.name||x.n||'',
+v:x.data||x.d||x.v||''
+};
+});
+upd();render()
+})
 .catch(function(){upd();render()});
 $('loading').style.display='none';
 })();
+
 function $(id){return document.getElementById(id)}
 function upd(){$('tN').textContent=all.length;$('iN').textContent=all.filter(function(x){return x.t==='img'}).length;$('vN').textContent=all.filter(function(x){return x.t==='vid'}).length}
 function get(){return filt==='all'?all:all.filter(function(x){return x.t===filt})}
 function render(){var g=$('gallery'),e=$('empty'),items=get();
 if(!items.length){g.innerHTML='';g.classList.add('hidden');e.classList.remove('hidden');return}
 e.classList.add('hidden');g.classList.remove('hidden');
-g.innerHTML=items.map(function(im,idx){
+g.innerHTML=items.map(function(idx){
+var im=all[idx];
 return '<div class="item" onclick="openLb('+idx+')">'+
 (im.t==='img'?'<img src="'+im.v+'" loading=lazy>':'<video src="'+im.v+'" muted loop playsinline preload=metadata></video><div class="v-icon">▶</div>')+
 '</div>'
 }).join('')}
+
 document.querySelectorAll('.tab-btn').forEach(function(b){
 b.onclick=function(){filt=this.dataset.f;document.querySelectorAll('.tab-btn').forEach(function(x){x.classList.toggle('active',x===this)}.bind(this));render()}.bind(b)
 });
-window.openLb=function(idx){var items=get();ci=idx;showM(items[idx]);$('lb').classList.add('show');ctr(items.length)};
+
+window.openLb=function(idx){ci=idx;showM(all[idx]);$('lb').classList.add('show');ctr(all.length)};
 function showM(im){var imEl=$('lbIm'),vEl=$('lbVd');
+if(!im)return;
 if(im.t==='img'){imEl.src=im.v;imEl.style.display='';vEl.style.display='none';vEl.pause()}
 else{vEl.src=im.v;vEl.style.display='';imEl.style.display='none';vEl.play()}}
 window.closeLb=function(e){if(e&&e.target!==e.currentTarget&&!e.target.closest('.lb-close'))return;$('lb').classList.remove('show');$('lbVd').pause()}
-window.nav=function(d){var items=get();ci=(ci+d+items.length)%items.length;showM(items[ci]);ctr(items.length)};
+window.nav=function(d){ci=(ci+d+all.length)%all.length;showM(all[ci]);ctr(all.length)};
 function ctr(t){$('lbCtr').textContent=(ci+1)+' / '+t}
 document.addEventListener('keydown',function(e){
-var lb=$('lb');
-if(!lb.classList.contains('show'))return;
+if(!$('lb').classList.contains('show'))return;
 if(e.key==='Escape')closeLb();
 if(e.key==='ArrowLeft')nav(-1);
 if(e.key==='ArrowRight')nav(1)
