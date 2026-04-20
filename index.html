@@ -7,100 +7,106 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#0a0a0f;color:#e0e0e0;min-height:100vh}
-.header{text-align:center;padding:60px 20px 40px}
-.header h1{font-size:clamp(28px,5vw,42px);font-weight:700;background:linear-gradient(135deg,#667eea 0%,#764ba2 50%,#f093fb 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+.header{text-align:center;padding:60px 20px 30px}
+.header h1{font-size:clamp(28px,5vw,42px);font-weight:700;background:linear-gradient(135deg,#667eea,#764ba2,#f093fb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
 .header p{color:#666;font-size:15px}
-.header .stats{display:flex;gap:24px;justify-content:center;margin-top:20px}
-.header .stat{background:rgba(255,255,255,.04);padding:12px 24px;border-radius:12px;border:1px solid rgba(255,255,255,.06)}
-.header .stat-num{font-size:24px;font-weight:700;color:#667eea}
-.header .stat-label{font-size:12px;color:#555;margin-top:2px}
-.tabs{display:flex;justify-content:center;gap:4px;margin:0 auto 32px;max-width:400px;background:rgba(255,255,255,.03);padding:4px;border-radius:12px}
-.tab-btn{padding:10px 24px;border:none;background:none;color:#666;font-size:14px;cursor:pointer;border-radius:10px;transition:.25s;font-weight:500}
-.tab-btn.active{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}
-.tab-btn:hover:not(.active){color:#aaa}
+.header .stats{display:flex;gap:20px;justify-content:center;margin-top:20px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.04);padding:14px 26px;border-radius:12px;border:1px solid rgba(255,255,255,.06)}
+.stat-num{font-size:26px;font-weight:700;color:#667eea}.stat-label{font-size:12px;color:#555;margin-top:4px}
+.tabs{display:flex;justify-content:center;gap:4px;margin:0 auto 32px;max-width:380px;background:rgba(255,255,255,.03);padding:5px;border-radius:12px}
+.tab-btn{flex:1;padding:10px 0;border:none;background:none;color:#666;font-size:14px;cursor:pointer;border-radius:9px;transition:.25s;font-weight:500;text-align:center}
+.tab-btn.active{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}.tab-btn:hover:not(.active){color:#aaa}
 .container{max-width:1200px;margin:0 auto;padding:0 24px 60px}
-.gallery{columns:4;column-gap:12px}
-@media(max-width:1200px){.gallery{columns:3}}@media(max-width:900px){.gallery{columns:2}}@media(max-width:600px){.gallery{columns:1}}
+.gallery{columns:4;column-gap:12px}@media(max-width:1200px){.gallery{columns:3}}@media(max-width:900px){.gallery{columns:2}}@media(max-width:600px){.gallery{columns:1}}
 .item{break-inside:avoid;margin-bottom:12px;border-radius:14px;overflow:hidden;position:relative;background:#12121a;cursor:pointer;transition:.35s cubic-bezier(.4,0,.2,1)}
 .item:hover{transform:translateY(-6px) scale(1.02);box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 30px rgba(102,126,234,.08)}
 .item img,.item video{width:100%;display:block;transition:.5s}.item:hover img,.item:hover video{transform:scale(1.05)}
-.video-icon{position:absolute;top:12px;right:12px;width:36px;height:36px;background:rgba(0,0,0,.6);backdrop-filter:blur(8px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
-.item-info{position:absolute;bottom:0;left:0;right:0;padding:40px 14px 14px;background:linear-gradient(to bottom,transparent,rgba(0,0,0,.85));opacity:0;transition:.3s}
-.item:hover .item-info{opacity:1}.item-name{font-size:12px;color:#ccc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.item-date{font-size:11px;color:#666;margin-top:2px}
+.v-icon{position:absolute;top:10px;right:10px;width:34px;height:34px;background:rgba(0,0,0,.55);backdrop-filter:blur(8px);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px}
 .loading{text-align:center;padding:80px 20px;color:#666}
-.spinner{width:44px;height:44px;border:3px solid rgba(102,126,234,.15);border-top-color:#667eea;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 18px}
-@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:44px;height:44px;border:3px solid rgba(102,126,234,.15);border-top-color:#667eea;border-radius:50%;animation:s .8s linear infinite;margin:0 auto 18px}@keyframes s{to{transform:rotate(360deg)}}
 .empty{text-align:center;padding:100px 20px}
-.empty-icon{font-size:72px;margin-bottom:20px;animation:float 3s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.ei{font-size:68px;margin-bottom:18px;animation:fl 3s ease-in-out infinite}@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 .empty h2{font-size:22px;color:#555;margin-bottom:8px}.empty p{color:#444;font-size:14px}
 .footer{text-align:center;padding:30px;color:#333;font-size:13px;border-top:1px solid rgba(255,255,255,.03)}
-.lb{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:9999;display:none;align-items:center;justify-content:center}
-.lb.show{display:flex;animation:fadeIn .2s}@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.lb-media{max-width:92vw;max-height:88vh;object-fit:contain;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
-.lb-close{position:absolute;top:20px;right:24px;background:rgba(255,255,255,.1);border:none;color:#fff;width:44px;height:44px;border-radius:50%;font-size:24px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center}
+.lb{position:fixed;inset:0;background:rgba(0,0,0,.96);z-index:9999;display:none;align-items:center;justify-content:center;animation:fi .2s}@keyframes fi{from{opacity:0}to{opacity:1}}
+.lb.show{display:flex}.lb-m{max-width:92vw;max-height:88vh;object-fit:contain;border-radius:8px;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.lb-close{position:absolute;top:20px;right:24px;background:rgba(255,255,255,.1);border:none;color:#fff;width:44px;height:44px;border-radius:50%;font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
 .lb-close:hover{background:rgba(255,255,255,.2);transform:rotate(90deg)}
-.lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.08);border:none;color:#fff;width:48px;height:48px;border-radius:50%;font-size:22px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center}
-.lb-nav:hover{background:rgba(255,255,255,.18)}
+.lb-nav{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.08);border:none;color:#fff;width:48px;height:48px;border-radius:50%;font-size:22px;cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center}.lb-nav:hover{background:rgba(255,255,255,.18)}
 .lb-prev{left:20px}.lb-next{right:20px}
-.lb-counter{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.6);padding:6px 16px;border-radius:20px;font-size:13px;color:#aaa}
+.lb-ctr{position:absolute;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.65);padding:6px 18px;border-radius:20px;font-size:13px;color:#bbb}
 </style>
 </head>
 <body>
 
 <div class="header">
 <h1>✨ My Gallery</h1><p>图片与视频集锦</p>
-<div class="stats"><div class="stat"><div class="stat-num" id="totalNum">-</div><div class="stat-label">全部</div></div><div class="stat"><div class="stat-num" id="imgNum">-</div><div class="stat-label">图片</div></div><div class="stat"><div class="stat-num" id="vidNum">-</div><div class="stat-label">视频</div></div></div>
+<div class="stats"><div class="stat"><div class="stat-num" id="tN">-</div><div class="stat-label">全部</div></div>
+<div class="stat"><div class="stat-num" id="iN">-</div><div class="stat-label">图片</div></div>
+<div class="stat"><div class="stat-num" id="vN">-</div><div class="stat-label">视频</div></div></div>
 </div>
 
-<div class="tabs"><button class="tab-btn active" onclick="ft('all')">全部</button><button class="tab-btn" onclick="ft('image')">📷 图片</button><button class="tab-btn" onclick="ft('video')">🎬 视频</button></div>
+<div class="tabs"><button class="tab-btn active" data-f="all">全部</button><button class="tab-btn" data-f="image">📷 图片</button><button class="tab-btn" data-f="video">🎬 视频</button></div>
 
 <div class="container">
-<div class="loading" id="loading"><div class="spinner"></div><p>正在加载图库...</p></div>
+<div class="loading" id="loading"><div class="spinner"></div><p>加载中...</p></div>
 <div class="gallery hidden" id="gallery"></div>
-<div class="empty hidden" id="empty"><div class="empty-icon">🎨</div><h2>图库空空的</h2><p>管理员还没有上传任何内容哦~</p></div>
+<div class="empty hidden" id="empty"><div class="ei">🎨</div><h2>图库空空的</h2><p>管理员还没上传内容~</p></div>
 </div>
-<footer class="footer">Powered by GitHub API &amp; GitHub Pages</footer>
+
+<footer class="footer">Powered by GitHub Pages</footer>
 
 <div class="lb" id="lb" onclick="closeLb(event)">
 <button class="lb-close" onclick="closeLb()">&times;</button>
-<button class="lb-nav lb-prev" onclick="event.stopPropagation();nav(-1)">‹</button><button class="lb-nav lb-next" onclick="event.stopPropagation();nav(1)">›</button>
-<img class="lb-media" id="lbImg" style="display:none"><video class="lb-media" id="lbVid" controls style="display:none"></video><div class="lb-counter" id="lbCounter"></div>
+<button class="lb-nav lb-prev" onclick="event.stopPropagation();nav(-1)">‹</button>
+<button class="lb-nav lb-next" onclick="event.stopPropagation();nav(1)">›</button>
+<img class="lb-m" id="lbIm" style="display:none"><video class="lb-m" id="lbVd" controls style="display:none"></video>
+<div class="lb-ctr" id="lbCtr"></div>
 </div>
 
 <script>
-const OWNER='tytm-coder', REPO='my_gallery';
-let all=[], f='all', ci=0;
+var all=[],filt='all',ci=0;
+const OWNER='tytm-coder',REPO='my_gallery';
 
-(async function init(){
-try{
-  const raw=await fetch(`https://raw.githubusercontent.com/${OWNER}/${REPO}/main/data.json`);
-  if(!raw.ok)throw new Error();
-  const d=await raw.json();
-  all=d.images||[];
-  upd();render();
-}catch(e){}
-document.getElementById('loading').style.display='none';
+(function init(){
+fetch('https://raw.githubusercontent.com/'+OWNER+'/'+REPO+'/main/data.json?t='+Date.now())
+.then(function(r){if(r.ok)return r.json()})
+.then(function(d){all=d?d.images||[]:[];upd();render()})
+.catch(function(){upd();render()});
+$('loading').style.display='none';
 })();
 
-function upd(){const imgs=all.filter(i=>i.type==='image').length,vids=all.filter(i=>i.type==='video').length;
-document.getElementById('totalNum').textContent=all.length;document.getElementById('imgNum').textContent=imgs;document.getElementById('vidNum').textContent=vids}
-function ft(t){f=t;document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active',b.textContent.includes(t==='all'?'全部':t)));render()}
-function gf(){if(f==='all')return all;return all.filter(i=>i.type===f)}
-function render(){
-  const g=document.getElementById('gallery'),e=document.getElementById('empty'),items=gf();
-  if(!items.length){g.innerHTML='';g.classList.add('hidden');e.classList.remove('hidden');return}
-  e.classList.add('hidden');g.classList.remove('hidden');
-  g.innerHTML=items.map((img,idx)=>`<div class="item" onclick="openLb(${idx})">${img.type==='image'?`<img src="${img.data}" alt="" loading="lazy">`:`<div><video src="${img.data}" muted loop playsinline preload="metadata"></video><div class="video-icon">▶</div></div>`}<div class="item-info"><div class="item-name">${img.name||''}</div><div class="item-date">${img.date||''}</div></div></div>`).join('');
+function $(id){return document.getElementById(id)}
+function upd(){$('tN').textContent=all.length;$('iN').textContent=all.filter(function(x){return x.t==='image'}).length;$('vN').textContent=all.filter(function(x){return x.t==='video'}).length}
+function get(){return filt==='all'?all:all.filter(function(x){return x.t===filt})}
+function render(){var g=$('gallery'),e=$('empty'),items=get();
+if(!items.length){g.innerHTML='';g.classList.add('hidden');e.classList.remove('hidden');return}
+e.classList.add('hidden');g.classList.remove('hidden');
+g.innerHTML=items.map(function(im,idx){
+return '<div class="item" onclick="openLb('+idx+')">'+
+(im.t==='image'?'<img src="'+im.d+'" loading=lazy>':'<video src="'+im.d+'" muted loop playsinline preload=metadata></video><div class="v-icon">▶</div>')+
+'</div>'
+}).join('')
 }
-function openLb(idx){const items=gf();ci=idx;sm(items[idx]);document.getElementById('lb').classList.add('show');uc(items.length)}
-function sm(item){const i=document.getElementById('lbImg'),v=document.getElementById('lbVid');
-if(item.type==='image'){i.src=item.data;i.style.display='';v.style.display='none';v.pause()}else{v.src=item.data;v.style.display='';i.style.display='none';v.play()}}
-function closeLb(ev){if(ev&&ev.target!==ev.currentTarget&&!ev.target.closest('.lb-close'))return;document.getElementById('lb').classList.remove('close');document.getElementById('lbVid').pause();document.getElementById('lb').classList.remove('show')}
-function nav(d){const items=gf();ci=(ci+d+items.length)%items.length;sm(items[ci]);uc(items.length)}
-function uc(t){document.getElementById('lbCounter').textContent=(ci+1)+' / '+t}
-document.addEventListener('keydown',e=>{const l=document.getElementById('lb');if(!l.classList.contains('show'))return;if(e.key==='Escape')closeLb();if(e.key==='ArrowLeft')nav(-1);if(e.key==='ArrowRight')nav(1)});
+
+document.querySelectorAll('.tab-btn').forEach(function(b){
+b.onclick=function(){filt=this.dataset.f;document.querySelectorAll('.tab-btn').forEach(function(x){x.classList.toggle('active',x===this)}.bind(this));render()}.bind(b)
+});
+
+window.openLb=function(idx){var items=get();ci=idx;showM(items[idx]);$('lb').classList.add('show');ctr(items.length)};
+function showM(im){var imEl=$('lbIm'),vEl=$('lbVd');
+if(im.t==='image'){imEl.src=im.d;imEl.style.display='';vEl.style.display='none';vEl.pause()}
+else{vEl.src=im.d;vEl.style.display='';imEl.style.display='none';vEl.play()}}
+window.closeLb=function(e){if(e&&e.target!==e.currentTarget&&!e.target.closest('.lb-close'))return;$('lb').classList.remove('show');$('lbVd').pause()}
+window.nav=function(d){var items=get();ci=(ci+d+items.length)%items.length;showM(items[ci]);ctr(items.length)};
+function ctr(t){$('lbCtr').textContent=(ci+1)+' / '+t}
+document.addEventListener('keydown',function(e){
+var lb=$('lb');
+if(!lb.classList.contains('show'))return;
+if(e.key==='Escape')closeLb();
+if(e.key==='ArrowLeft')nav(-1);
+if(e.key==='ArrowRight')nav(1)
+});
 </script>
 </body>
 </html>
