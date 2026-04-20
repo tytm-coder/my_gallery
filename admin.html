@@ -5,360 +5,203 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>图库管理 - Admin</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body { font-family: -apple-system, 'Segoe UI', Roboto, sans-serif; background: #0f0f0f; color: #e0e0e0; min-height: 100vh; }
-
-/* 顶部导航 */
-.navbar { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.08); }
-.navbar h1 { font-size: 20px; font-weight: 600; background: linear-gradient(135deg, #667eea, #764ba2); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-.navbar a { color: #888; text-decoration: none; font-size: 14px; transition: color 0.2s; }
-.navbar a:hover { color: #667eea; }
-
-/* 密钥输入区 */
-.auth-section { max-width: 600px; margin: 40px auto; padding: 32px; background: #1a1a2e; border-radius: 16px; border: 1px solid rgba(255,255,255,0.06); }
-.auth-section.hidden { display: none; }
-.auth-section h2 { margin-bottom: 8px; font-size: 18px; }
-.auth-section p { color: #888; font-size: 14px; margin-bottom: 20px; }
-.input-group { display: flex; gap: 10px; }
-.input-group input { flex: 1; padding: 12px 16px; background: #0f0f1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 14px; font-family: monospace; }
-.input-group input:focus { outline: none; border-color: #667eea; }
-.btn { padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500; transition: all 0.2s; }
-.btn-primary { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
-.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(102,126,234,0.4); }
-.btn-danger { background: linear-gradient(135deg, #ff6b6b, #ee5a24); color: white; }
-.btn-danger:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(255,107,107,0.4); }
-.btn-sm { padding: 6px 14px; font-size: 12px; }
-
-/* 主内容区 */
-.container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-.container.hidden { display: none; }
-
-/* 上传区域 */
-.upload-zone { border: 2px dashed rgba(255,255,255,0.15); border-radius: 16px; padding: 48px; text-align: center; cursor: pointer; transition: all 0.3s; margin-bottom: 32px; position: relative; overflow: hidden; }
-.upload-zone:hover, .upload-zone.dragover { border-color: #667eea; background: rgba(102,126,234,0.05); }
-.upload-zone .icon { font-size: 48px; margin-bottom: 16px; opacity: 0.6; }
-.upload-zone p { color: #888; font-size: 15px; }
-.upload-zone .hint { color: #555; font-size: 13px; margin-top: 8px; }
-#fileInput { display: none; }
-
-/* 状态栏 */
-.status-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 12px 16px; background: #1a1a2e; border-radius: 10px; font-size: 14px; }
-.status-bar .count { color: #888; }
-.status-bar .actions { display: flex; gap: 8px; }
-
-/* 瀑布流网格 */
-.gallery { columns: 4; column-gap: 12px; }
-@media (max-width: 1200px) { .gallery { columns: 3; } }
-@media (max-width: 900px)  { .gallery { columns: 2; } }
-@media (max-width: 600px)  { .gallery { columns: 1; } }
-
-.gallery-item { break-inside: avoid; margin-bottom: 12px; position: relative; border-radius: 12px; overflow: hidden; background: #1a1a2e; transition: transform 0.3s, box-shadow 0.3s; }
-.gallery-item:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
-.gallery-item img, .gallery-item video { width: 100%; display: block; }
-.gallery-item .overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(to bottom, transparent 50%, rgba(0,0,0,0.8)); opacity: 0; transition: opacity 0.3s; display: flex; align-items: flex-end; justify-content: space-between; padding: 12px; }
-.gallery-item:hover .overlay { opacity: 1; }
-.gallery-item .delete-btn { width: 32px; height: 32px; border-radius: 50%; background: rgba(255,71,87,0.9); color: white; border: none; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: transform 0.2s; }
-.gallery-item .delete-btn:hover { transform: scale(1.1); }
-.gallery-item .type-badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
-.type-badge.image { background: rgba(102,126,234,0.9); }
-.type-badge.video { background: rgba(118,75,162,0.9); }
-
-/* 空状态 */
-.empty-state { text-align: center; padding: 80px 20px; color: #555; }
-.empty-state .icon { font-size: 64px; margin-bottom: 16px; opacity: 0.3; }
-.empty-state p { font-size: 16px; }
-
-/* 加载动画 */
-.loading { text-align: center; padding: 60px; color: #888; }
-.spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: #667eea; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* Toast 提示 */
-.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(80px); padding: 12px 24px; border-radius: 10px; color: white; font-size: 14px; z-index: 999; opacity: 0; transition: all 0.3s; }
-.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-.toast.success { background: linear-gradient(135deg, #00b894, #00cec9); }
-.toast.error   { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
-
-/* Lightbox */
-.lightbox { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 40px; }
-.lightbox.active { display: flex; }
-.lightbox-content { max-width: 90vw; max-height: 85vh; object-fit: contain; border-radius: 8px; }
-.lightbox-close { position: absolute; top: 20px; right: 24px; background: none; border: none; color: #fff; font-size: 36px; cursor: pointer; opacity: 0.6; transition: opacity 0.2s; }
-.lightbox-close:hover { opacity: 1; }
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;background:#0f0f0f;color:#e0e0e0;min-height:100vh}
+.navbar{background:linear-gradient(135deg,#1a1a2e,#16213e);padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.08)}
+.navbar h1{font-size:20px;font-weight:600;background:linear-gradient(135deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.navbar a{color:#888;text-decoration:none;font-size:14px;transition:.2s}.navbar a:hover{color:#667eea}
+.auth-section{max-width:600px;margin:40px auto;padding:32px;background:#1a1a2e;border-radius:16px;border:1px solid rgba(255,255,255,.06)}
+.auth-section.hidden{display:none}
+.auth-section h2{margin-bottom:8px;font-size:18px}
+.auth-section p{color:#888;font-size:14px;margin-bottom:20px}
+.input-group{display:flex;gap:10px}
+.input-group input{flex:1;padding:12px 16px;background:#0f0f1a;border:1px solid rgba(255,255,255,.1);border-radius:10px;color:#fff;font-size:14px;font-family:monospace}
+.input-group input:focus{outline:none;border-color:#667eea}
+.btn{padding:12px 24px;border:none;border-radius:10px;cursor:pointer;font-size:14px;font-weight:500;transition:.2s}
+.btn-primary{background:linear-gradient(135deg,#667eea,#764ba2);color:#fff}.btn-primary:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(102,126,234,.4)}
+.btn-danger{background:linear-gradient(135deg,#ff6b6b,#ee5a24);color:#fff}.btn-danger:hover{transform:translateY(-1px);box-shadow:0 4px 15px rgba(255,107,107,.4)}
+.btn-sm{padding:6px 14px;font-size:12px}
+.container{max-width:1200px;margin:0 auto;padding:24px}.container.hidden{display:none}
+.upload-zone{border:2px dashed rgba(255,255,255,.15);border-radius:16px;padding:48px;text-align:center;cursor:pointer;transition:.3s;margin-bottom:32px;position:relative;overflow:hidden}
+.upload-zone:hover,.upload-zone.dragover{border-color:#667eea;background:rgba(102,126,234,.05)}
+.upload-zone .icon{font-size:48px;margin-bottom:16px;opacity:.6}
+.upload-zone p{color:#888;font-size:15px}.upload-zone .hint{color:#555;font-size:13px;margin-top:8px}
+#fileInput{display:none}
+.status-bar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:12px 16px;background:#1a1a2e;border-radius:10px;font-size:14px}
+.status-bar .count{color:#888}.status-bar .actions{display:flex;gap:8px}
+.gallery{columns:4;column-gap:12px}@media(max-width:1200px){.gallery{columns:3}}@media(max-width:900px){.gallery{columns:2}}@media(max-width:600px){.gallery{columns:1}}
+.gallery-item{break-inside:avoid;margin-bottom:12px;position:relative;border-radius:12px;overflow:hidden;background:#1a1a2e;transition:.3s}
+.gallery-item:hover{transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.4)}
+.gallery-item img,.gallery-item video{width:100%;display:block}
+.gallery-item .overlay{position:absolute;top:0;left:0;right:0;bottom:0;background:linear-gradient(to bottom,transparent 50%,rgba(0,0,0,.8));opacity:0;transition:.3s;display:flex;align-items:flex-end;justify-content:space-between;padding:12px}
+.gallery-item:hover .overlay{opacity:1}
+.gallery-item .delete-btn{width:32px;height:32px;border-radius:50%;background:rgba(255,71,87,.9);color:#fff;border:none;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:.2s}
+.gallery-item .delete-btn:hover{transform:scale(1.1)}
+.gallery-item .type-badge{padding:4px 10px;border-radius:6px;font-size:11px;font-weight:600;text-transform:uppercase}
+.type-badge.image{background:rgba(102,126,234,.9)}.type-badge.video{background:rgba(118,75,162,.9)}
+.empty-state{text-align:center;padding:80px 20px;color:#555}
+.empty-state .icon{font-size:64px;margin-bottom:16px;opacity:.3}
+.loading{text-align:center;padding:60px;color:#888}
+.spinner{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#667eea;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-80px);padding:12px 24px;border-radius:10px;color:#fff;font-size:14px;z-index:999;opacity:0;transition:.3s}
+.toast.show{transform:translateX(0);opacity:1}
+.toast.success{background:linear-gradient(135deg,#00b894,#00cec9)}.toast.error{background:linear-gradient(135deg,#ff6b6b,#ee5a24)}
+.lightbox{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.95);z-index:1000;display:none;align-items:center;justify-content:center;padding:40px}
+.lightbox.active{display:flex}
+.lightbox-content{max-width:90vw;max-height:85vh;object-fit:contain;border-radius:8px}
+.lightbox-close{position:absolute;top:20px;right:24px;background:none;border:none;color:#fff;font-size:36px;cursor:pointer;opacity:.6;transition:.2s}.lightbox-close:hover{opacity:1}
 </style>
 </head>
 <body>
 
-<!-- 导航栏 -->
-<nav class="navbar">
-  <h1>🖼️ 图库管理后台</h1>
-  <a href="index.html" target="_blank">→ 查看公开页面</a>
-</nav>
+<nav class="navbar"><h1>🖼️ 图库管理后台</h1><a href="index.html" target="_blank">→ 查看公开页面</a></nav>
 
-<!-- 密钥验证 -->
 <div class="auth-section" id="authSection">
-  <h2>🔐 管理员登录</h2>
-  <p>请输入你的 JSONBin API Master Key 以确认身份</p>
-  <div class="input-group">
-    <input type="password" id="apiKeyInput" placeholder="粘贴你的 API Key...">
-    <button class="btn btn-primary" onclick="verifyKey()">验证</button>
-  </div>
-  <p style="margin-top:12px;color:#555;font-size:12px;">Key 在 JSONBin.io → API KEYS 页面可找到</p>
+<h2>🔐 管理员登录</h2><p>输入你的 GitHub Personal Access Token</p>
+<div class="input-group"><input type="password" id="tokenInput" placeholder="ghp_xxxx..."><button class="btn btn-primary" onclick="verify()">验证</button></div>
+<p style="margin-top:12px;color:#555;font-size:12px;">Token 在 GitHub → Settings → Developer settings → Tokens (classic) 中生成</p>
 </div>
 
-<!-- 主内容 -->
 <div class="container hidden" id="mainContent">
+<div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
+<div class="icon">📤</div><p><strong>拖拽图片/视频到这里</strong></p><p class="hint">或点击选择文件 · 支持 JPG/PNG/GIF/MP4/WebM · 单次最多10个</p><input type="file" id="fileInput" multiple accept="image/*,video/*"></div>
 
-  <!-- 上传区域 -->
-  <div class="upload-zone" id="dropZone" onclick="document.getElementById('fileInput').click()">
-    <div class="icon">📤</div>
-    <p><strong>拖拽图片/视频到这里</strong></p>
-    <p class="hint">或点击选择文件 · 支持 JPG / PNG / GIF / MP4 / WebM · 单次最多 10 个</p>
-    <input type="file" id="fileInput" multiple accept="image/*,video/*">
-  </div>
+<div class="status-bar"><span class="count" id="itemCount">共 0 张</span><div class="actions"><button class="btn btn-sm btn-primary" onclick="loadData()">🔄 刷新</button><button class="btn btn-sm btn-danger" onclick="logout()">退出登录</button></div></div>
 
-  <!-- 状态栏 -->
-  <div class="status-bar">
-    <span class="count" id="itemCount">共 0 张</span>
-    <div class="actions">
-      <button class="btn btn-sm btn-primary" onclick="refreshGallery()">🔄 刷新</button>
-      <button class="btn btn-sm btn-danger" onclick="logout()">退出登录</button>
-    </div>
-  </div>
-
-  <!-- 图库 -->
-  <div class="gallery" id="gallery"></div>
-
-  <!-- 空状态 -->
-  <div class="empty-state hidden" id="emptyState">
-    <div class="icon">📭</div>
-    <p>还没有图片<br><small style="color:#445">拖拽文件到上方区域开始上传</small></p>
-  </div>
-
-  <!-- 加载 -->
-  <div class="loading hidden" id="loading">
-    <div class="spinner"></div>
-    <p>加载中...</p>
-  </div>
+<div class="gallery" id="gallery"></div>
+<div class="empty-state hidden" id="emptyState"><div class="icon">📭</div><p>还没有图片<br><small>拖拽文件到上方区域开始上传</small></p></div>
+<div class="loading hidden" id="loading"><div class="spinner"></div><p>加载中...</p></div>
 </div>
 
-<!-- Lightbox -->
-<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
-  <button class="lightbox-close">&times;</button>
-  <img class="lightbox-content" id="lightboxImg" style="display:none;">
-  <video class="lightbox-content" id="lightboxVideo" controls style="display:none;"></video>
-</div>
-
-<!-- Toast -->
+<div class="lightbox" id="lightbox" onclick="closeLb(event)"><button class="lightbox-close">&times;</button><img class="lightbox-content" id="lbImg" style="display:none"><video class="lightbox-content" id="lbVid" controls style="display:none"></video></div>
 <div class="toast" id="toast"></div>
 
 <script>
-// ===== 配置 =====
 const CONFIG = {
-  binId: '69e5b6feaaba882197195531',
-  apiBase: 'https://api.jsonbin.io/v3',
+  owner: 'tytm-coder',
+  repo: 'my_gallery',
+  dataFile: 'data.json'
 };
 
-let apiKey = '';
+let token = '';
 let images = [];
 
-// ===== 工具函数 =====
-function showToast(msg, type = 'success') {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.className = `toast ${type} show`;
-  setTimeout(() => t.className = 'toast', 2500);
-}
+function toast(msg,type='success'){const t=document.getElementById('toast');t.textContent=msg;t.className=`toast ${type} show`;setTimeout(()=>t.className='toast',2500)}
+function showLoading(s){document.getElementById('loading').classList.toggle('hidden',!s)}
 
-function showLoading(show) {
-  document.getElementById('loading').classList.toggle('hidden', !show);
-}
-
-// ===== 认证 =====
-async function verifyKey() {
-  const input = document.getElementById('apiKeyInput');
-  apiKey = input.value.trim();
-  if (!apiKey) { showToast('请输入 API Key', 'error'); return; }
-
+async function verify(){
+  const inp = document.getElementById('tokenInput');
+  token = inp.value.trim();
+  if(!token){toast('请输入 Token','error');return}
   showLoading(true);
   try {
-    // 验证 key 是否有效（尝试读取）
-    const res = await fetch(`${CONFIG.apiBase}/b/${CONFIG.binId}/latest`, {
-      headers: { 'X-Master-Key': apiKey }
-    });
-    if (!res.ok) throw new Error('API Key 无效');
-
-    localStorage.setItem('g_admin_key', apiKey);
+    // 测试 Token 是否有效
+    const res = await fetch(`https://api.github.com/user`, {headers:{'Authorization':`token ${token}`}});
+    if(!res.ok) throw new Error('Token 无效');
+    localStorage.setItem('g_admin_token', token);
     document.getElementById('authSection').classList.add('hidden');
     document.getElementById('mainContent').classList.remove('hidden');
-    await loadGallery();
-    showToast('✅ 登录成功');
-  } catch (e) {
-    showToast('❌ ' + e.message, 'error');
-  } finally {
-    showLoading(false);
-  }
+    await loadData();
+    toast('✅ 登录成功');
+  } catch(e) {toast('❌ '+e.message,'error')} finally {showLoading(false)}
 }
 
-// 检查是否有已保存的 key
-(function() {
-  const saved = localStorage.getItem('g_admin_key');
-  if (saved) {
-    document.getElementById('apiKeyInput').value = saved;
-    verifyKey();
-  }
-})();
+(function(){const s=localStorage.getItem('g_admin_token');if(s){document.getElementById('tokenInput').value=s;verify()}})();
+function logout(){localStorage.removeItem('g_admin_token');location.reload()}
 
-function logout() {
-  localStorage.removeItem('g_admin_key');
-  location.reload();
+// ===== 数据操作（GitHub API）=====
+async function getDataSha(){
+  const res=await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.dataFile}`,{
+    headers:{'Authorization':`token ${token}`}
+  });
+  if(res.status===404)return null;
+  if(!res.ok)throw new Error('读取失败: '+res.status);
+  return await res.json();
 }
 
-// ===== 数据操作 =====
-async function loadGallery() {
+async function loadData(){
   showLoading(true);
   try {
-    const res = await fetch(`${CONFIG.apiBase}/b/${CONFIG.binId}/latest`, {
-      headers: { 'X-Master-Key': apiKey }
-    });
-    const data = await res.json();
-    images = data.record.images || [];
+    const data = await getDataSha();
+    images = data ? JSON.parse(atob(data.content)).images || [] : [];
     render();
-  } catch (e) {
-    showToast('❌ 加载失败', 'error');
-  } finally {
-    showLoading(false);
-  }
+  } catch(e){toast('❌ 加载失败: '+e.message,'error')}
+  finally{showLoading(false)}
 }
 
-async function saveToCloud() {
-  const res = await fetch(`${CONFIG.apiBase}/b/${CONFIG.binId}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-      'X-Master-Key': apiKey,
-    },
-    body: JSON.stringify({ images })
-  });
-  if (!res.ok) throw new Error('保存失败');
-}
-
-// ===== 文件上传 =====
-const dropZone = document.getElementById('dropZone');
-const fileInput = document.getElementById('fileInput');
-
-['dragenter','dragover'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.add('dragover'); }));
-['dragleave','drop'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.remove('dragover'); }));
-
-dropZone.addEventListener('drop', handleFiles);
-fileInput.addEventListener('change', () => handleFiles({ dataTransfer: { files: fileInput.files } }));
-fileInput.value = ''; // reset
-
-async function handleFiles(ev) {
-  const files = [...(ev.dataTransfer?.files || ev.target?.files || [])].slice(0, 10);
-  if (!files.length) return;
-
+async function saveData(newImages){
   showLoading(true);
-  let count = 0;
-
-  for (const file of files) {
-    if (!file.type.startsWith('image/') && !file.type.startsWith('video/')) continue;
-
-    const reader = new FileReader();
-    const dataUrl = await new Promise(resolve => {
-      reader.onload = () => resolve(reader.result);
-      reader.readAsDataURL(file);
+  try {
+    let sha = null;
+    try { const d = await getDataSha(); if(d)sha=d.sha; } catch(e){}
+    
+    const content = btoa(JSON.stringify({images:newImages},null,2));
+    const body = {message:'更新图库数据',content};
+    if(sha)body.sha=sha;
+    
+    const res = await fetch(`https://api.github.com/repos/${CONFIG.owner}/${CONFIG.repo}/contents/${CONFIG.dataFile}`,{
+      method:'PUT',
+      headers:{'Authorization':`token ${token}`,'Accept':'application/vnd.github.v3+json'},
+      body:JSON.stringify(body)
     });
+    if(!res.ok) throw new Error('保存失败: '+res.status);
+    images = newImages;
+    render();
+    toast('✅ 已同步到云端');
+  } catch(e){toast('❌ 保存失败: '+e.message,'error')}
+  finally{showLoading(false)}
+}
 
-    images.push({
-      id: Date.now() + Math.random().toString(36).substr(2, 9),
-      type: file.type.startsWith('image/') ? 'image' : 'video',
-      name: file.name,
-      data: dataUrl,
-      date: new Date().toLocaleString('zh-CN')
-    });
+// ===== 上传 =====
+const dropZone=document.getElementById('dropZone'), fileInput=document.getElementById('fileInput');
+['dragenter','dragover'].forEach(e=>dropZone.addEventListener(e,ev=>{ev.preventDefault();dropZone.classList.add('dragover')}));
+['dragleave','drop'].forEach(e=>dropZone.addEventListener(e,ev=>{ev.preventDefault();dropZone.classList.remove('dragover')}));
+dropZone.addEventListener('drop',handleFiles);
+fileInput.addEventListener('change',()=>handleFiles({dataTransfer:{files:fileInput.files}}));
+
+async function handleFiles(ev){
+  const files=[...(ev.dataTransfer?.files||ev.target?.files||[])].slice(0,10);
+  if(!files.length)return;
+  showLoading(true);let count=0;
+  for(const file of files){
+    if(!file.type.startsWith('image/')&&!file.type.startsWith('video/'))continue;
+    const reader=new FileReader();
+    const dataUrl=await new Promise(resolve=>{reader.onload=()=>resolve(reader.result);reader.readAsDataURL(file)});
+    images.push({id:Date.now()+Math.random().toString(36).substr(2,9),type:file.type.startsWith('image/')?'image':'video',name:file.name,data:dataUrl,date:new Date().toLocaleString('zh-CN')});
     count++;
   }
-
-  try {
-    await saveToCloud();
-    render();
-    showToast(`✅ 已上传 ${count} 个文件`);
-  } catch (e) {
-    showToast('❌ 上传失败', 'error');
-  } finally {
-    showLoading(false);
-  }
+  await saveData(images);toast(`✅ 已上传 ${count} 个文件`);showLoading(false)
 }
 
 // ===== 删除 =====
-async function deleteItem(id) {
-  if (!confirm('确定要删除这张吗？')) return;
-  images = images.filter(img => img.id !== id);
-  try {
-    await saveToCloud();
-    render();
-    showToast('已删除');
-  } catch (e) {
-    showToast('删除失败', 'error');
-  }
+async function del(id){
+  if(!confirm('确定删除？'))return;
+  images=images.filter(x=>x.id!==id);
+  await saveData(images);toast('已删除')
 }
 
-async function refreshGallery() { await loadGallery(); showToast('已刷新'); }
-
-// ===== 渲染 =====
-function render() {
-  const gallery = document.getElementById('gallery');
-  const emptyState = document.getElementById('emptyState');
-  const countEl = document.getElementById('itemCount');
-
-  countEl.textContent = `共 ${images.length} 张`;
-
-  if (!images.length) {
-    gallery.innerHTML = '';
-    emptyState.classList.remove('hidden');
-    return;
-  }
-
-  emptyState.classList.add('hidden');
-  gallery.innerHTML = images.map(img => `
+function render(){
+  const g=document.getElementById('gallery'), e=document.getElementById('emptyState'), c=document.getElementById('itemCount');
+  c.textContent=`共 ${images.length} 张`;
+  if(!images.length){g.innerHTML='';e.classList.remove('hidden');return}
+  e.classList.add('hidden');
+  g.innerHTML=images.map(img=>`
     <div class="gallery-item" data-id="${img.id}">
-      ${img.type === 'image'
-        ? `<img src="${img.data}" alt="${img.name}" loading="lazy">`
-        : `<video src="${img.data}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()"></video>`
-      }
-      <div class="overlay">
-        <span class="type-badge ${img.type}">${img.type === 'image' ? '📷 图片' : '🎬 视频'}</span>
-        <button class="delete-btn" onclick="deleteItem('${img.id}')">✕</button>
-      </div>
-    </div>
-  `).join('');
+    ${img.type==='image'?`<img src="${img.data}" alt="${img.name}" loading="lazy">`:`<video src="${img.data}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()"></video>`}
+    <div class="overlay"><span class="type-badge ${img.type}">${img.type==='image'?'📷 图片':'🎬 视频'}</span><button class="delete-btn" onclick="del('${img.id}')">✕</button></div></div>`).join('')
 }
 
-// ===== Lightbox =====
-document.getElementById('gallery').addEventListener('click', e => {
-  const item = e.target.closest('.gallery-item');
-  if (!item || e.target.closest('.delete-btn')) return;
-  const img = item.querySelector('img') || item.querySelector('video');
-  if (!img) return;
-
-  const lbImg = document.getElementById('lightboxImg');
-  const lbVid = document.getElementById('lightboxVideo');
-  const lb = document.getElementById('lightbox');
-
-  if (img.tagName === 'IMG') {
-    lbImg.src = img.src; lbImg.style.display = ''; lbVid.style.display = 'none';
-  } else {
-    lbVid.src = img.src; lbVid.style.display = ''; lbImg.style.display = 'none'; lbVid.play();
-  }
-  lb.classList.add('active');
+document.getElementById('gallery').addEventListener('click',e=>{
+  const item=e.target.closest('.gallery-item');if(!item||e.target.closest('.delete-btn'))return;
+  const m=item.querySelector('img')||item.querySelector('video');if(!m)return;
+  const i=document.getElementById('lbImg'),v=document.getElementById('lbVid'),l=document.getElementById('lightbox');
+  if(m.tagName==='IMG'){i.src=m.src;i.style.display='';v.style.display='none'}else{v.src=m.src;v.style.display='';i.style.display='none';v.play()}
+  l.classList.add('active')
 });
 
-function closeLightbox(e) {
-  if (e && e.target !== e.currentTarget && !e.target.closest('.lightbox-close')) return;
-  document.getElementById('lightbox').classList.remove('active');
-  document.getElementById('lightboxVideo').pause();
-}
+function closeLb(ev){if(ev&&ev.target!==ev.currentTarget&&!ev.target.closest('.lightbox-close'))return;
+document.getElementById('lightbox').classList.remove('active');document.getElementById('lbVid').pause()}
 </script>
 </body>
 </html>
